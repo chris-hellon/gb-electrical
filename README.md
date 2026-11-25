@@ -100,4 +100,3 @@ Most copy changes, such as adding a gallery photo, a service or an FAQ, only nee
 ## Credits
 
 Photos are of GB Electrical's own work, from their [Facebook page](https://www.facebook.com/gbelectricalltd).
-Website by CGH Web Design.
