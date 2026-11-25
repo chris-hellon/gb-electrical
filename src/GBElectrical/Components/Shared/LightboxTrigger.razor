@@ -1,0 +1,14 @@
+@* A real <button> that opens the shared lightbox at this photo, and gets focus back when it closes. *@
+@inject LightboxService Lightbox
+
+<button @ref="button" class="@Class" type="button" @onclick="OpenAsync">@ChildContent</button>
+
+@code {
+    private ElementReference button;
+
+    [Parameter, EditorRequired] public Photo Photo { get; set; } = default!;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private Task OpenAsync() => Lightbox.OpenAsync(Photo, button);
+}

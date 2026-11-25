@@ -1,0 +1,88 @@
+@* Photo viewer for every [LightboxTrigger] on the page. Uses a native <dialog> (showModal via JS interop)
+   so focus trapping, Escape-to-close and the backdrop come from the browser, as in the static build. *@
+@implements IAsyncDisposable
+@inject LightboxService LightboxState
+@inject IJSRuntime JS
+
+<dialog @ref="dialog" class="lightbox" id="lightbox" aria-label="Photo viewer" @onkeydown="OnKeyDown">
+    <figure class="lightbox__figure">
+        <img class="lightbox__img" id="lightbox-img" src="@Current?.Src" alt="@(Current?.Alt ?? "")">
+        <div class="lightbox__bar">
+            <figcaption class="lightbox__caption" id="lightbox-caption">
+                @if (Current is not null)
+                {
+                    @($"{Current.Caption} ({current + 1} of {Photos.Count})")
+                }
+            </figcaption>
+            <div class="lightbox__controls">
+                <button class="lightbox__btn" type="button" aria-label="Previous photo" @onclick="() => Show(current - 1)"><Icon Name="chevron-left" Size="22" StrokeWidth="2.2" /></button>
+                <button class="lightbox__btn" type="button" aria-label="Next photo" @onclick="() => Show(current + 1)"><Icon Name="chevron-right" Size="22" StrokeWidth="2.2" /></button>
+                <button class="lightbox__btn" type="button" aria-label="Close" @onclick="CloseAsync"><Icon Name="close" Size="22" StrokeWidth="2.2" /></button>
+            </div>
+        </div>
+    </figure>
+</dialog>
+
+@code {
+    private static IReadOnlyList<Photo> Photos => SiteContent.LightboxPhotos;
+
+    private ElementReference dialog;
+    private ElementReference? lastTrigger;
+    private int current = -1;
+    private IJSObjectReference? module;
+    private IJSObjectReference? listeners;
+    private DotNetObjectReference<Lightbox>? selfRef;
+
+    private Photo? Current => current >= 0 ? Photos[current] : null;
+
+    protected override void OnInitialized() => LightboxState.OpenRequested += OpenAsync;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        selfRef = DotNetObjectReference.Create(this);
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Shared/Lightbox.razor.js");
+        listeners = await module.InvokeAsync<IJSObjectReference>("init", dialog, selfRef);
+    }
+
+    private async Task OpenAsync(int index, ElementReference trigger)
+    {
+        if (module is null || index < 0) return;
+        lastTrigger = trigger;
+        Show(index);
+        await InvokeAsync(StateHasChanged);
+        await module.InvokeVoidAsync("open", dialog);
+    }
+
+    private void Show(int index) => current = (index + Photos.Count) % Photos.Count;
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowLeft") Show(current - 1);
+        if (e.Key == "ArrowRight") Show(current + 1);
+    }
+
+    private async Task CloseAsync()
+    {
+        if (module is not null) await module.InvokeVoidAsync("close", dialog);
+    }
+
+    /// <summary>Called from JS on the dialog's close event (button, Escape or backdrop click).</summary>
+    [JSInvokable]
+    public async Task OnDialogClosed()
+    {
+        if (lastTrigger is { } trigger) await trigger.FocusAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        LightboxState.OpenRequested -= OpenAsync;
+        try
+        {
+            if (listeners is not null) { await listeners.InvokeVoidAsync("dispose"); await listeners.DisposeAsync(); }
+            if (module is not null) await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        selfRef?.Dispose();
+    }
+}

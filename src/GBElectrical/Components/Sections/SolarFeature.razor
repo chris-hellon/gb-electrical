@@ -1,0 +1,33 @@
+<section class="section solar" id="solar">
+    <svg class="solar__pattern" viewBox="0 0 400 400" aria-hidden="true">
+        <g fill="none" stroke="#FFFFFF" stroke-width="6">
+            <rect x="20" y="20" width="360" height="360" rx="12" />
+            <path d="M140 20v360M260 20v360M20 110h360M20 200h360M20 290h360" />
+        </g>
+    </svg>
+    <div class="solar__inner container">
+        <div>
+            <p class="eyebrow eyebrow--white">Solar PV</p>
+            <h2 class="display">Make your own power with <em>solar panels.</em></h2>
+            <p class="solar__lead">Solar is now the core of what we do. We survey, design and install solar PV systems for homes and businesses, fitted by our own team and backed by the same standards we’ve worked to for over 20 years.</p>
+            <ul class="solar__benefits">
+                @foreach (var benefit in SiteContent.SolarBenefits)
+                {
+                    <li><Icon Name="check" Size="24" StrokeWidth="2.6" />@benefit</li>
+                }
+            </ul>
+            <a class="btn btn--navy" href="#contact">Book a free solar survey</a>
+        </div>
+
+        <ol class="solar__steps" aria-label="How a solar install works">
+            @for (var i = 0; i < SiteContent.SolarSteps.Count; i++)
+            {
+                var step = SiteContent.SolarSteps[i];
+                <li class="solar__step">
+                    <span class="solar__step-num" aria-hidden="true">@(i + 1)</span>
+                    <div><h3>@step.Title</h3><p>@step.Description</p></div>
+                </li>
+            }
+        </ol>
+    </div>
+</section>

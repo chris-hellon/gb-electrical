@@ -1,0 +1,19 @@
+<section class="careers" id="careers">
+    <div class="careers__inner container">
+        <div>
+            <p class="eyebrow">Careers</p>
+            <h2 class="display display--white">We’re hiring.</h2>
+            <p class="lead lead--on-navy">Our workload is growing, so we’re expanding the team. We do domestic and commercial work and pay competitive rates. If you’re interested, get in touch.</p>
+            <div class="careers__actions">
+                <a class="btn btn--primary" href="@($"{Site.EmailHref}?subject=Job%20application")">Email your CV</a>
+                <a class="btn btn--ghost" href="@Site.PhoneHref">Call @Site.PhoneDisplay</a>
+            </div>
+        </div>
+        <ul class="careers__roles">
+            @foreach (var role in SiteContent.Roles)
+            {
+                <li>@role.Title <span>@role.Detail</span></li>
+            }
+        </ul>
+    </div>
+</section>

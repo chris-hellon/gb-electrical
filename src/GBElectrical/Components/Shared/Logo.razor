@@ -1,0 +1,11 @@
+<a class="brand" href="#top" aria-label="GB Electrical, back to top">
+    <svg width="@Size" height="@Size" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M129.6 36.6 A70 70 0 1 1 70.4 36.6" fill="none" stroke="#F4572C" stroke-width="16" />
+        <g fill="#FFFFFF"><rect x="93" y="16" width="14" height="66" rx="7" /><rect x="76" y="72" width="48" height="48" rx="11" /><rect x="85" y="116" width="10" height="24" rx="4" /><rect x="105" y="116" width="10" height="24" rx="4" /></g>
+    </svg>
+    <span class="brand__name">@Site.Name</span>
+</a>
+
+@code {
+    [Parameter] public int Size { get; set; } = 42;
+}

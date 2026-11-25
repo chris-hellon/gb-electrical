@@ -1,0 +1,52 @@
+@* Per-page <head> tags for search and social sharing: title, description, canonical, robots,
+   Open Graph / Twitter cards and (optionally) schema.org JSON-LD. Rendered during prerendering,
+   so crawlers get them in the first HTML response. *@
+@using Microsoft.Extensions.Options
+@inject IOptions<SiteOptions> SiteOptions
+
+<PageTitle>@Title</PageTitle>
+<HeadContent>
+    <meta name="description" content="@Description">
+    <link rel="canonical" href="@CanonicalUrl">
+    <meta name="robots" content="@Robots">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="@Site.Name">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:title" content="@Title">
+    <meta property="og:description" content="@Description">
+    <meta property="og:url" content="@CanonicalUrl">
+    <meta property="og:image" content="@ImageUrl">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="@Seo.ShareImageAlt">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@Title">
+    <meta name="twitter:description" content="@Description">
+    <meta name="twitter:image" content="@ImageUrl">
+    <meta name="twitter:image:alt" content="@Seo.ShareImageAlt">
+
+    @if (JsonLd is not null)
+    {
+        @* Blazor doesn't allow <script> elements in markup, so the JSON-LD goes in as a MarkupString.
+           StructuredData escapes <, > and &, so the content can't close the tag early. *@
+        @((MarkupString)$"<script type=\"application/ld+json\">{JsonLd}</script>")
+    }
+</HeadContent>
+
+@code {
+    [Parameter] public string Title { get; set; } = Seo.Title;
+    [Parameter] public string Description { get; set; } = Seo.Description;
+    /// <summary>Site-relative path of this page, used for the canonical URL.</summary>
+    [Parameter] public string Path { get; set; } = "/";
+    [Parameter] public bool NoIndex { get; set; }
+    /// <summary>Pre-serialised schema.org JSON-LD (see <see cref="StructuredData"/>).</summary>
+    [Parameter] public string? JsonLd { get; set; }
+
+    private string CanonicalUrl => SiteOptions.Value.Url(Path);
+    private string ImageUrl => SiteOptions.Value.Url(Seo.ShareImagePath);
+    private string Robots => NoIndex || !SiteOptions.Value.AllowIndexing
+        ? "noindex, nofollow"
+        : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+}

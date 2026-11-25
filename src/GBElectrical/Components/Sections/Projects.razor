@@ -1,0 +1,13 @@
+<section class="section projects" id="projects">
+    <div class="container">
+        <SectionHead Eyebrow="Featured projects" OnNavy="true"
+                     Lead="A couple of recent commercial jobs from around Merseyside. Tap any photo to see it larger.">
+            <Title>Projects we’re <em>proud of.</em></Title>
+        </SectionHead>
+
+        @foreach (var project in SiteContent.Projects)
+        {
+            <ProjectFeature Project="project" />
+        }
+    </div>
+</section>

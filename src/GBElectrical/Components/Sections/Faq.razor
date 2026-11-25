@@ -1,0 +1,18 @@
+<section class="section" id="faq">
+    <div class="faq__inner container">
+        <div>
+            <p class="eyebrow">FAQ</p>
+            <h2 class="display">Good questions</h2>
+            <p class="lead">Can’t see yours? Call <a href="@Site.PhoneHref">@Site.PhoneDisplay</a> and we’ll talk it through.</p>
+        </div>
+        <div class="faq__list">
+            @foreach (var faq in SiteContent.Faqs)
+            {
+                <details class="faq-item">
+                    <summary>@faq.Question<span class="faq-item__icon" aria-hidden="true"><Icon Name="plus" Size="16" StrokeWidth="2.5" /></span></summary>
+                    <div class="faq-item__answer"><p>@faq.Answer</p></div>
+                </details>
+            }
+        </div>
+    </div>
+</section>

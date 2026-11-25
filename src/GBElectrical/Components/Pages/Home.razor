@@ -1,0 +1,39 @@
+@page "/"
+@using Microsoft.Extensions.Options
+@inject IOptions<SiteOptions> SiteOptions
+
+<SeoHead Title="@Seo.Title" Description="@Seo.Description" Path="/" JsonLd="@jsonLd" />
+
+@*
+    Content sources: GB Electrical's Facebook page (facebook.com/gbelectricalltd) and the original gb-electrical.com.
+    PLACEHOLDERS: text in [square brackets] needs confirming with GB Electrical. Search Content/SiteContent.cs and Components for "[".
+*@
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<TopBar />
+<SiteHeader />
+
+<main id="main">
+    <Hero />
+    <TrustStrip />
+    <SolarFeature />
+    <ServicesGrid />
+    <Projects />
+    <WorkGallery />
+    <About />
+    <Careers />
+    <Faq />
+    <ContactSection />
+</main>
+
+<SiteFooter />
+<MobileCallBar />
+<Lightbox />
+
+@code {
+    private string? jsonLd;
+
+    protected override void OnInitialized() =>
+        jsonLd = StructuredData.ForHomePage(SiteOptions.Value, Seo.Title, Seo.Description);
+}

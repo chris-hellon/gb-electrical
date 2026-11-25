@@ -1,0 +1,31 @@
+<section class="section contact" id="contact">
+    <div class="contact__inner container">
+        <div>
+            <p class="eyebrow">Get in touch</p>
+            <h2 class="display display--white">Let’s talk about <em>your project.</em></h2>
+            <p class="lead lead--on-navy">Whether it’s solar, a heat pump or a rewire, tell us a bit about it and we’ll come back to you.</p>
+            <ul class="contact-cards">
+                <li>
+                    <a class="contact-card" href="@Site.PhoneHref">
+                        <span class="contact-card__icon"><Icon Name="phone" Size="22" /></span>
+                        <span><span class="contact-card__label">Phone</span><span class="contact-card__value">@Site.PhoneDisplay</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="contact-card" href="@Site.EmailHref">
+                        <span class="contact-card__icon"><Icon Name="mail" Size="22" /></span>
+                        <span><span class="contact-card__label">Email</span><span class="contact-card__value">@Site.Email</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="contact-card" href="@Site.FacebookUrl" target="_blank" rel="noopener">
+                        <span class="contact-card__icon"><Icon Name="facebook" Size="22" /></span>
+                        <span><span class="contact-card__label">Facebook</span><span class="contact-card__value">/gbelectricalltd</span></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <ContactForm />
+    </div>
+</section>

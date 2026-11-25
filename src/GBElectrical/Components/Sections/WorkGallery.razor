@@ -1,0 +1,27 @@
+<section class="section" id="work">
+    <div class="container">
+        <SectionHead Eyebrow="Recent work"
+                     Lead="Kitchens, extensions, gardens and consumer units, all finished neatly and certified. Tap a photo to see it larger.">
+            <Title>Homes across the North West</Title>
+        </SectionHead>
+
+        @* Add more photos in SiteContent.Gallery; "tall" spans two rows, "wide" spans two columns *@
+        <ul class="gallery">
+            @foreach (var item in SiteContent.Gallery)
+            {
+                <li class="@item.Size">
+                    @if (item.Photo is { } photo)
+                    {
+                        <LightboxTrigger Photo="photo" Class="gallery__btn">
+                            <img src="@photo.Src" alt="@photo.Alt" loading="lazy"><span class="gallery__cap">@item.Label</span>
+                        </LightboxTrigger>
+                    }
+                    else
+                    {
+                        <a class="gallery__more" href="@Site.FacebookPhotosUrl" target="_blank" rel="noopener"><span>@item.Label</span><b>See it on Facebook →</b></a>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+</section>

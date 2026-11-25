@@ -1,0 +1,80 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<header class="site-header">
+    <nav class="nav container" aria-label="Main">
+        <Logo Size="42" />
+
+        <button @ref="toggle" class="nav__toggle" type="button" aria-expanded="@(isOpen ? "true" : "false")" aria-controls="nav-menu"
+                aria-label="@(isOpen ? "Close menu" : "Open menu")" @onclick="() => isOpen = !isOpen">
+            <Icon Name="menu" Size="24" StrokeWidth="2.2" />
+        </button>
+
+        <div @ref="menu" class="nav__menu @(isOpen ? "is-open" : null)" id="nav-menu">
+            <ul class="nav__links">
+                @foreach (var (href, label) in Links)
+                {
+                    <li><a href="@href">@label</a></li>
+                }
+                <li>
+                    <a class="btn btn--primary btn--sm" href="@Site.PhoneHref">
+                        <Icon Name="phone" Size="18" StrokeWidth="2.2" />
+                        @Site.PhoneDisplay
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+@code {
+    private static readonly (string Href, string Label)[] Links =
+    [
+        ("#solar", "Solar"), ("#services", "Services"), ("#projects", "Projects"),
+        ("#about", "About"), ("#careers", "Careers"), ("#faq", "FAQ"),
+    ];
+
+    private bool isOpen;
+    private ElementReference toggle;
+    private ElementReference menu;
+    private IJSObjectReference? module;
+    private IJSObjectReference? listener;
+    private DotNetObjectReference<SiteHeader>? selfRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        selfRef = DotNetObjectReference.Create(this);
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Sections/SiteHeader.razor.js");
+        listener = await module.InvokeAsync<IJSObjectReference>("init", menu, toggle, selfRef);
+    }
+
+    /// <summary>Escape anywhere on the page closes the open menu and returns focus to the toggle.</summary>
+    [JSInvokable]
+    public async Task OnEscape()
+    {
+        if (!isOpen) return;
+        isOpen = false;
+        StateHasChanged();
+        await toggle.FocusAsync();
+    }
+
+    /// <summary>JS has already hidden the menu; keep the component state in step.</summary>
+    [JSInvokable]
+    public void OnLinkClicked()
+    {
+        isOpen = false;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (listener is not null) { await listener.InvokeVoidAsync("dispose"); await listener.DisposeAsync(); }
+            if (module is not null) await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        selfRef?.Dispose();
+    }
+}

@@ -1,0 +1,15 @@
+<div class="section-head">
+    <div>
+        <p class="eyebrow">@Eyebrow</p>
+        <h2 class="display @(OnNavy ? "display--white" : null)">@Title</h2>
+    </div>
+    <p class="lead @(OnNavy ? "lead--on-navy" : null)">@Lead</p>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Eyebrow { get; set; } = "";
+    /// <summary>Heading content; may include an &lt;em&gt; for the orange accent.</summary>
+    [Parameter, EditorRequired] public RenderFragment Title { get; set; } = default!;
+    [Parameter, EditorRequired] public string Lead { get; set; } = "";
+    [Parameter] public bool OnNavy { get; set; }
+}

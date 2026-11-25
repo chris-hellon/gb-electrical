@@ -1,0 +1,120 @@
+@* Quote form. Validated with DataAnnotations, then posted to Web3Forms from the visitor's browser
+   (JS interop fetch), the same way the static build does it. Web3Forms' free plan only accepts
+   browser submissions, so it is not sent from the server. *@
+@using Microsoft.Extensions.Options
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject IOptions<Web3FormsOptions> Options
+
+<EditForm Model="enquiry" OnValidSubmit="SendAsync" OnInvalidSubmit="OnInvalid" class="form" id="contact-form" novalidate>
+    <DataAnnotationsValidator />
+    <h3 class="form__title">Request a free quote</h3>
+    <input class="form__hp" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" @bind="enquiry.Botcheck">
+
+    <div class="form__row">
+        <div class="field"><label for="f-name">Name</label><InputText id="f-name" name="name" type="text" autocomplete="name" required @bind-Value="enquiry.Name" /></div>
+        <div class="field"><label for="f-phone">Phone</label><InputText id="f-phone" name="phone" type="tel" autocomplete="tel" @bind-Value="enquiry.Phone" /></div>
+    </div>
+    <div class="form__row">
+        <div class="field"><label for="f-email">Email</label><InputText id="f-email" name="email" type="email" autocomplete="email" required @bind-Value="enquiry.Email" /></div>
+        <div class="field">
+            <label for="f-service">What’s it about?</label>
+            <InputSelect id="f-service" name="service" @bind-Value="enquiry.Service">
+                @foreach (var option in SiteContent.EnquiryServices)
+                {
+                    <option value="@option">@option</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <div class="field"><label for="f-message">Message</label><InputTextArea id="f-message" name="message" rows="5" placeholder="Tell us a bit about the job and where it is" required @bind-Value="enquiry.Message" /></div>
+    <button class="btn btn--primary form__submit" type="submit" disabled="@sending">@(sending ? "Sending…" : "Send enquiry")</button>
+    <p class="@StatusClass" id="form-status" role="status" aria-live="polite">@status</p>
+</EditForm>
+
+@code {
+    private const string Fallback = $"Please call {Site.PhoneDisplay} or email {Site.Email}.";
+
+    private Enquiry enquiry = new();
+    private bool sending;
+    private string? status;
+    private bool? success;
+    private bool focusInvalid;
+    private IJSObjectReference? module;
+
+    private string StatusClass => success switch
+    {
+        true => "form__status is-success",
+        false => "form__status is-error",
+        null => "form__status",
+    };
+
+    private void OnInvalid()
+    {
+        SetStatus(false, "Please fill in your name, a valid email address and a message.");
+        focusInvalid = true;
+    }
+
+    private async Task SendAsync()
+    {
+        var options = Options.Value;
+        if (!options.IsConfigured)
+        {
+            SetStatus(false, $"The form isn’t connected yet. {Fallback}");
+            return;
+        }
+
+        SetStatus(null, null);
+        sending = true;
+        try
+        {
+            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Sections/ContactForm.razor.js");
+            var sent = await module.InvokeAsync<bool>("send", new Dictionary<string, object?>
+            {
+                ["access_key"] = options.AccessKey,
+                ["subject"] = options.Subject,
+                ["from_name"] = options.FromName,
+                ["botcheck"] = enquiry.Botcheck,
+                ["name"] = enquiry.Name,
+                ["phone"] = enquiry.Phone ?? "",
+                ["email"] = enquiry.Email,
+                ["service"] = enquiry.Service,
+                ["message"] = enquiry.Message,
+            });
+
+            if (sent)
+            {
+                enquiry = new();
+                SetStatus(true, "Thanks, your message has been sent. We’ll be in touch soon.");
+            }
+            else
+            {
+                SetStatus(false, $"Sorry, something went wrong. {Fallback}");
+            }
+        }
+        catch (JSException)
+        {
+            SetStatus(false, $"Sorry, something went wrong. {Fallback}");
+        }
+        finally
+        {
+            sending = false;
+        }
+    }
+
+    private void SetStatus(bool? ok, string? text) => (success, status) = (ok, text);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!focusInvalid) return;
+        focusInvalid = false;
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Sections/ContactForm.razor.js");
+        await module.InvokeVoidAsync("focusFirstInvalid", "contact-form");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try { if (module is not null) await module.DisposeAsync(); }
+        catch (JSDisconnectedException) { }
+    }
+}

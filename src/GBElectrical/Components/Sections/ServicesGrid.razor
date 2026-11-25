@@ -1,0 +1,32 @@
+<section class="section" id="services">
+    <div class="container">
+        <SectionHead Eyebrow="What we do" Lead="From renewable energy to rewires and testing, one team for every part of your electrics.">
+            <Title>Our services</Title>
+        </SectionHead>
+
+        <ul class="services-grid">
+            @foreach (var service in SiteContent.Services)
+            {
+                <li>
+                    <article class="service @(service.IsFeature ? "service--feature" : null)">
+                        @if (service.IsFeature)
+                        {
+                            <span class="service__tag">Main focus</span>
+                        }
+                        <span class="service__icon"><Icon Name="@service.Icon" Size="30" /></span>
+                        <h3>@service.Title</h3>
+                        <p>@service.Description</p>
+                    </article>
+                </li>
+            }
+        </ul>
+
+        <div class="also">
+            <span class="also__label">We also do</span>
+            @foreach (var chip in SiteContent.AlsoDo)
+            {
+                <span class="also__chip">@chip</span>
+            }
+        </div>
+    </div>
+</section>

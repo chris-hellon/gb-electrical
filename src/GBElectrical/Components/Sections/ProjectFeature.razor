@@ -1,0 +1,25 @@
+<article class="project @(Project.Flip ? "project--flip" : null)">
+    <div class="project__media">
+        @foreach (var shot in Project.Shots)
+        {
+            <LightboxTrigger Photo="shot.Photo" Class="@($"shot {shot.CssClass}")">
+                <img src="@shot.Photo.Src" alt="@shot.Photo.Alt" loading="lazy">
+            </LightboxTrigger>
+        }
+    </div>
+    <div>
+        <p class="project__kicker">@Project.Kicker</p>
+        <h3>@Project.Title</h3>
+        <p>@Project.Description</p>
+        <ul class="project__facts">
+            @foreach (var fact in Project.Facts)
+            {
+                <li>@fact</li>
+            }
+        </ul>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Project Project { get; set; } = default!;
+}

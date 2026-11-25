@@ -1,0 +1,14 @@
+{
+  "name": "GB Electrical",
+  "short_name": "GB Electrical",
+  "description": "Solar PV, heat pumps and NICEIC approved electricians in Birkenhead, Wirral.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#032A4B",
+  "theme_color": "#032A4B",
+  "icons": [
+    { "src": "/img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/img/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
